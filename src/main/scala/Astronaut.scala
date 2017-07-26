@@ -1,5 +1,6 @@
 import scala.language.implicitConversions
 
+import MultiMerger.Aux
 import cats.Semigroup
 import shapeless._
 
@@ -99,20 +100,24 @@ object AutoSemigroup {
 
 sealed trait Animal
 
-final case class Cat(age: Int, color: String, other: Foo) extends Animal
+object Animal {
 
-final case class Dog(age: Int, color: String, race: String, other: Foo) extends Animal
+  final case class Cat(age: Int, color: String, other: Foo) extends Animal
 
-sealed trait Foo
+  final case class Dog(age: Int, color: String, race: String, other: Foo) extends Animal
 
-case class Bar(x: String) extends Foo
+  sealed trait Foo
 
-case class Baz(x: Int) extends Foo
+  case class Bar(x: String) extends Foo
+
+  case class Baz(x: Int) extends Foo
+}
+
 
 
 object Astronaut extends App {
-  val cat = Cat(1, "Red", Bar("Alex"))
-  val dog = Dog(1, "Red", "Fool", Baz(1))
+  val cat = Animal.Cat(1, "Red", Animal.Bar("Alex"))
+  val dog = Animal.Dog(1, "Red", "Fool", Animal.Baz(1))
 
   println(s"Dog: ${Show[Animal].show(dog)}")
   println(s"Cat: ${Show[Animal].show(cat)}")
@@ -124,4 +129,11 @@ object Astronaut extends App {
 
   println(Show[Animal].show(cat))
   println(cat |+| cat)
+
+  case class Foo(foo: Int)
+
+  case class Bar(bar: String)
+
+  val multiMerge = MultiMerger[Foo :: Bar :: HNil].build
+  println(multiMerge(Foo(1) :: Bar("bar") :: HNil))
 }

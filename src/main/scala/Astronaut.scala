@@ -1,8 +1,9 @@
 import scala.language.implicitConversions
 
-import MultiMerger.Aux
-import cats.Semigroup
+import cats._
+import cats.implicits._
 import shapeless._
+import shapeless.test.illTyped
 
 trait Show[A] {
   def show(a: A): String
@@ -123,9 +124,6 @@ object Astronaut extends App {
   println(s"Cat: ${Show[Animal].show(cat)}")
 
   import AutoSemigroup._
-  import cats.syntax.semigroup._
-  import cats.instances.int._
-  import cats.instances.string._
 
   println(Show[Animal].show(cat))
   println(cat |+| cat)
@@ -136,4 +134,8 @@ object Astronaut extends App {
 
   val multiMerge = MultiMerger[Foo :: Bar :: HNil].build
   println(multiMerge(Foo(1) :: Bar("bar") :: HNil))
+
+  val last = Last[Int :: Int :: String :: HNil]
+  illTyped { """Last[HNil]""" }
+  println(last(1 :: 2 :: "three" :: HNil))
 }
